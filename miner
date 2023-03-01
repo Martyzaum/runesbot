@@ -69,24 +69,23 @@ class OSRSBasicMiner(OSRSBot):
                     continue
                 failed_searches = 0  # If code got here, a tree was found
 
+                    # -- Efetua o clique quando encontra a palavra Mine
+                if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE):
+                    continue
+                self.mouse.click()
+                time.sleep(0.5)
+
+                # While the player is chopping (or moving), wait
+                probability = 0.10
+                while not api_m.get_is_player_idle():
+                    # Every second there is a chance to move the mouse to the next tree, lessen the chance as time goes on
+                    if rd.random_chance(probability):
+                        self.__move_mouse_to_nearest_ore(next_nearest=True)
+                        probability /= 2
+                    time.sleep(1)
+
             if inv == "full":
                 self.__banking(api_s)
-
-
-            # -- Efetua o clique quando encontra a palavra Mine
-            if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE):
-                continue
-            self.mouse.click()
-            time.sleep(0.5)
-
-            # While the player is chopping (or moving), wait
-            probability = 0.10
-            while not api_m.get_is_player_idle():
-                # Every second there is a chance to move the mouse to the next tree, lessen the chance as time goes on
-                if rd.random_chance(probability):
-                    self.__move_mouse_to_nearest_ore(next_nearest=True)
-                    probability /= 2
-                time.sleep(1)
                 
             self.update_progress((time.time() - start_time) / end_time)
 
@@ -95,9 +94,11 @@ class OSRSBasicMiner(OSRSBot):
         self.stop()
 
     def __banking(self, api_s: StatusSocket):
-        target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
-        self.mouse.move_to(target[0].random_point(), mouseSpeed="slow")
-        time.sleep(1)
+        target = self.get_nearest_tag(clr.GREEN)
+        self.mouse.move_to(target.random_point(), mouseSpeed="slow")
+        if target:
+            self.mouse.right_click()
+            
 
     def __drop_ores(self, api_s: StatusSocket):
         slots = api_s.get_inv_item_indices(ids.ores)
