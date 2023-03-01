@@ -39,6 +39,7 @@ class OSRSBasicMiner(OSRSBot):
         api_s = StatusSocket()
 
         self.ores = 0
+        inv = "empty"
 
         self.log_msg("Selecionando Inventario")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
@@ -53,19 +54,24 @@ class OSRSBasicMiner(OSRSBot):
             # -- Detecta se o inventario esta cheio
             if api_s.get_is_inv_full():
                 self.log_msg("Inventario esta cheio.")
-                self.__banking(api_s)
+                inv = "full"
 
             # -- Coloca o mouse em cima das arvores
-            if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_ore():
-                failed_searches += 1
-                if failed_searches % 10 == 0:
-                    self.log_msg("Procurando por ores...")
-                if failed_searches > 60:
-                    # If we've been searching for a whole minute...
-                    self.log_msg("Nenhuma ore encontrada em 1 minuto")
-                time.sleep(1)
-                continue
-            failed_searches = 0  # If code got here, a tree was found
+            if inv == "empty":
+                if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_ore():
+                    failed_searches += 1
+                    if failed_searches % 10 == 0:
+                        self.log_msg("Procurando por ores...")
+                    if failed_searches > 60:
+                        # If we've been searching for a whole minute...
+                        self.log_msg("Nenhuma ore encontrada em 1 minuto")
+                    time.sleep(1)
+                    continue
+                failed_searches = 0  # If code got here, a tree was found
+
+            if inv == "full":
+                self.__banking(api_s)
+
 
             # -- Efetua o clique quando encontra a palavra Mine
             if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE):
@@ -89,10 +95,8 @@ class OSRSBasicMiner(OSRSBot):
         self.stop()
 
     def __banking(self, api_s: StatusSocket):
-        slots = api_s.get_inv_item_indices(ids.ores)
         target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
-        if target:
-             self.mouse.move_to(target.random_point(), mouseSpeed="slow")
+        self.mouse.move_to(target[0].random_point(), mouseSpeed="slow")
         time.sleep(1)
 
     def __drop_ores(self, api_s: StatusSocket):
