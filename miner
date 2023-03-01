@@ -94,8 +94,10 @@ class OSRSBasicMiner(OSRSBot):
         self.stop()
 
     def __banking(self, api_s: StatusSocket):
-        steps = 1
-        target = 0
+        steps = 0
+        target = self.get_nearest_tag(clr.GREEN)
+        target = self.get_nearest_tag(clr.GREEN)
+        self.mouse.move_to(target.random_point(), mouseSpeed="slow")
 
         if steps == 1:
             target = self.get_nearest_tag(clr.GREEN)
@@ -110,7 +112,7 @@ class OSRSBasicMiner(OSRSBot):
             steps = 3
 
         if steps == 3:
-            self.log_msg("pica moleeeee")    
+            self.log_msg("AEEEEE")  
 
         
             
