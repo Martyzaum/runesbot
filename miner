@@ -94,27 +94,11 @@ class OSRSBasicMiner(OSRSBot):
         self.stop()
 
     def __banking(self, api_s: StatusSocket):
-        steps = 0
         target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
         self.mouse.move_to(target[0].random_point(), mouseSpeed="slow")
+        self.mouse.click()
+        time.sleep(1)
 
-        if steps == 1:
-            target = self.get_nearest_tag(clr.GREEN)
-            self.mouse.move_to(target.random_point(), mouseSpeed="slow")
-            self.mouse.click()
-            steps = 2
-
-        if steps == 2:
-            target = self.get_nearest_tag(clr.PINK)
-            self.mouse.move_to(target.random_point(), mouseSpeed="slow")
-            self.mouse.click()
-            steps = 3
-
-        if steps == 3:
-            self.log_msg("AEEEEE")  
-
-        
-            
     def __drop_ores(self, api_s: StatusSocket):
         slots = api_s.get_inv_item_indices(ids.ores)
         self.drop(slots)
