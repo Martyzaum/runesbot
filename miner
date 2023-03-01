@@ -53,7 +53,7 @@ class OSRSBasicMiner(OSRSBot):
             # -- Detecta se o inventario esta cheio
             if api_s.get_is_inv_full():
                 self.log_msg("Inventario esta cheio.")
-                self.__drop_ores(api_s)
+                self.__banking(api_s)
 
             # -- Coloca o mouse em cima das arvores
             if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_ore():
@@ -88,6 +88,12 @@ class OSRSBasicMiner(OSRSBot):
         self.log_msg("Finished.")
         self.stop()
 
+    def __banking(self, api_s: StatusSocket):
+        slots = api_s.get_inv_item_indices(ids.ores)
+        target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
+        if target:
+             self.mouse.move_to(target.random_point(), mouseSpeed="slow")
+        time.sleep(1)
 
     def __drop_ores(self, api_s: StatusSocket):
         slots = api_s.get_inv_item_indices(ids.ores)
