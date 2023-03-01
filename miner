@@ -95,9 +95,8 @@ class OSRSBasicMiner(OSRSBot):
 
     def __banking(self, api_s: StatusSocket):
         steps = 0
-        target = self.get_nearest_tag(clr.GREEN)
-        target = self.get_nearest_tag(clr.GREEN)
-        self.mouse.move_to(target.random_point(), mouseSpeed="slow")
+        target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
+        self.mouse.move_to(target[0].random_point(), mouseSpeed="slow")
 
         if steps == 1:
             target = self.get_nearest_tag(clr.GREEN)
