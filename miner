@@ -10,10 +10,10 @@ from utilities.geometry import RuneLiteObject
 
 
 class OSRSBasicMiner(OSRSBot):
-    def __init__(self):
+    def _init_(self):
         bot_title = "Copper/Tin/Iron Miner"
         description = "que passa manito"
-        super().__init__(bot_title=bot_title, description=description)
+        super()._init_(bot_title=bot_title, description=description)
         # Set option variables below (initial value is only used during UI-less testing)
         self.running_time = 1
 
@@ -86,7 +86,7 @@ class OSRSBasicMiner(OSRSBot):
 
             if inv == "full":
                 self.log_msg("Indo para o banco")
-                self.__banking(api_s)
+                self.__banking()
                 
             self.update_progress((time.time() - start_time) / end_time)
 
@@ -95,23 +95,17 @@ class OSRSBasicMiner(OSRSBot):
         self.stop()
 
     def __banking(self):
-        steps = 0
-
-        target = self.get_nearest_tag(clr.GREEN)
-        self.mouse.move_to(target.random_point())
+        target = self.get_all_tagged_in_rect(self.win.game_view, clr.GREEN)
+        self.mouse.move_to(target[0].random_point())
         self.mouse.click()
+
         steps = 1
+
+        time.sleep(1)
         
         if steps == 1:
-            target = self.get_nearest_tag(clr.GREEN)  
-            self.mouse.move_to(target.random_point())
-            self.mouse.click()
-            steps == 2
-
-        if steps == 2:
-            self.log_msg('aloha')
-
-
+            self.log_msg("GOZEEEEEEEi")
+		
     def __drop_ores(self, api_s: StatusSocket):
         slots = api_s.get_inv_item_indices(ids.ores)
         self.drop(slots)
