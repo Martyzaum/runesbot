@@ -6,6 +6,7 @@ import utilities.random_util as rd
 from model.osrs.osrs_bot import OSRSBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
+from utilities.geometry import RuneLiteObject
 
 
 class OSRSBasicMiner(OSRSBot):
@@ -49,10 +50,29 @@ class OSRSBasicMiner(OSRSBot):
         while time.time() - start_time < end_time:
             # -- Perform bot actions here --
 
+            # -- Detecta se o inventario esta cheio
             if api_s.get_is_inv_full():
-                self.__drop_logs(api_s)
                 self.log_msg("Inventario esta cheio.")
+                self.__drop_ores(api_s)
 
+            # -- Coloca o mouse em cima das arvores
+            if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE) and not self.__move_mouse_to_nearest_ore():
+                failed_searches += 1
+                if failed_searches % 10 == 0:
+                    self.log_msg("Procurando por ores...")
+                if failed_searches > 60:
+                    # If we've been searching for a whole minute...
+                    self.log_msg("Nenhuma ore encontrada em 1 minuto")
+                time.sleep(1)
+                continue
+            failed_searches = 0  # If code got here, a tree was found
+
+            # -- Efetua o clique quando encontra a palavra Mine
+            if not self.mouseover_text(contains="Mine", color=clr.OFF_WHITE):
+                continue
+            self.mouse.click()
+            time.sleep(0.5)
+                
             self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
@@ -66,3 +86,21 @@ class OSRSBasicMiner(OSRSBot):
         self.ores += len(slots)
         self.log_msg("Itens dropados, o inventario esta vazio")
         time.sleep(1)
+
+    def __move_mouse_to_nearest_ore(self, next_nearest=False):
+        ores = self.get_all_tagged_in_rect(self.win.game_view, clr.PINK)
+        ore = None
+        if not ores:
+            return False
+        # If we are looking for the next nearest ore, we need to make sure ores has at least 2 elements
+        if next_nearest and len(ores) < 2:
+            return False
+        ores = sorted(ores, key=RuneLiteObject.distance_from_rect_center)
+        ore = ores[1] if next_nearest else ores[0]
+        if next_nearest:
+            self.mouse.move_to(ore.random_point(), mouseSpeed="slow", knotsCount=2)
+            self.log_msg("Ore Localizada.")
+        else:
+            self.mouse.move_to(ore.random_point())
+            self.log_msg("Ore Localizada.")
+        return True
