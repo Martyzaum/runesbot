@@ -72,6 +72,15 @@ class OSRSBasicMiner(OSRSBot):
                 continue
             self.mouse.click()
             time.sleep(0.5)
+
+            # While the player is chopping (or moving), wait
+            probability = 0.10
+            while not api_m.get_is_player_idle():
+                # Every second there is a chance to move the mouse to the next tree, lessen the chance as time goes on
+                if rd.random_chance(probability):
+                    self.__move_mouse_to_nearest_ore(next_nearest=True)
+                    probability /= 2
+                time.sleep(1)
                 
             self.update_progress((time.time() - start_time) / end_time)
 
